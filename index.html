@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<!--
+	Based on the
+		https://github.com/robnyman/Firefox-OS-Boilerplate-App
+ -->
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+
+	<title>Check-in Fox</title>
+	<link rel="shortcut icon" type="image/png" href="images/icon.png">
+
+	<link rel="stylesheet" type="text/css" href="css/base.css">
+	<link rel="stylesheet" type="text/css" href="css/headers.css">
+	<link rel="stylesheet" type="text/css" href="css/toolbars.css">
+	<link rel="stylesheet" type="text/css" href="shared/style/buttons.css">
+	<link rel="stylesheet" type="text/css" href="shared/style_unstable/lists.css">
+	<link rel="stylesheet" type="text/css" href="css/transitions.css">
+
+	<link rel="stylesheet" type="text/css" href="css/app.css">
+
+	<link href='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.css' rel='stylesheet' />
+
+	</style>
+</head>
+
+<body>
+
+<section role="region">
+	<header>
+		<menu type="toolbar">
+			<button id="install"><span class="icon icon-add">add</span></button>
+		</menu>
+		<h1 id="apptitle">
+			Check-in Fox
+		</h1>
+	</header>
+</section>
+
+
+<div id="main">
+	<section id="foursquare-auth">
+		<a id="foursquare-login" class="recommend" role="button" href="#">Log in to FourSquare</a>
+	</section>
+
+	<section id="geolocation">
+		<a id="geolocation-find" class="recommend" role="button" href="#">Find my location</a>
+	</section>
+
+	<section id="foursquare-actions" data-type="list">
+		<header>Last check-in:</header>
+		<ul>
+			<li>
+				<p id="foursquare-info">Please authenticate with FourSquare first.</p>
+			</li>
+		</ul>
+
+		<header>Where are you now?</header>
+		<ul id="map">
+			<li><div id="mapdiv"></div></li>
+		</ul>
+		<ul id="venuelist">
+			<li>
+			</li>
+		</ul>
+	</section>
+
+</div>
+
+
+
+<script type="text/javascript" data-main="js/app" src="js/require.js"></script>
+
+<script src='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.js'></script>
+
+</body>
+</html>

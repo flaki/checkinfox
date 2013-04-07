@@ -1,0 +1,21 @@
+#main:not(.authenticated)>#foursquare-actions {
+	display: none;
+}
+#main.authenticated>#foursquare-auth {
+	display: none;
+}
+
+#main:not(.nolocation)>#geolocation {
+	display: none;
+}
+
+#map>li {
+	transition: 1s ease all;
+	height: 15rem;
+}
+[data-type="list"]>#venuelist aside img {
+	background-color: #CCC;
+	width: 5em; height: 5em;
+	border-radius: 20%;
+	margin: .5em;
+}

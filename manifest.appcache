@@ -1,0 +1,14 @@
+CACHE MANIFEST
+# Version 0.1
+
+index.html
+css/base.css
+js/base.js
+js/webapp.js
+js/offline.js
+
+NETWORK:
+*
+
+FALLBACK:
+/ offline.html
