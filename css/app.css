@@ -7,11 +7,14 @@ html {
 body {
 	transition: .5s transform ease;
 }
+
 article {
 	display: block;
 	position: absolute;
 	top: 0; left: 0; right: 0;
+	padding: 1rem;
 }
+
 #checkin_screen,
 #venue_screen {
 	transform: translateX(100%);
