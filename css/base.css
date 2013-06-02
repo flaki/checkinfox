@@ -1,19 +1,22 @@
 /* Font declarations: Firefox OS base font (Feura Sans) */
 @font-face {
 	font-family: 'Feura Sans';
-	src: url('../fonts/FeuraSans-Regular.woff') format('woff');
+	src: url('../fonts/FeuraSans-Regular.woff') format('woff')
+		,url('../fonts/FeuraSans-Regular.ttf') format('ttf');
 	font-weight: normal;
 	font-style: normal;
 }
 @font-face {
 	font-family: 'Feura Sans';
-	src: url('../fonts/FeuraSans-Light.woff') format('woff');
+	src: url('../fonts/FeuraSans-Light.woff') format('woff')
+		,url('../fonts/FeuraSans-Light.ttf') format('ttf');
 	font-weight: 300;
 	font-style: normal;
 }
 @font-face {
 	font-family: 'Feura Sans';
-	src: url('../fonts/FeuraSans-Medium.woff') format('woff');
+	src: url('../fonts/FeuraSans-Medium.woff') format('woff')
+		,url('../fonts/FeuraSans-Medium.ttf') format('ttf');
 	font-weight: 500;
 	font-style: normal;
 }
