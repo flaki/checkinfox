@@ -1,5 +1,5 @@
 /*jshint browser: true, devel: true, strict: true, newcap: true, undef: true, curly: false, plusplus: false, laxcomma: true, laxbreak:true */
-/*global define, mapbox, $ */
+/*global define, $, L */
 
 /*
 check connection
@@ -7,7 +7,7 @@ var connection = window.navigator.mozConnection,
 		online = "<strong>Connected:</strong> " + (connection.bandwidth),
 */
 
-define("app",["require","when/when"], function(require,when) {
+define("app",["require","when/when","when/timeout"], function(require,when,timeout) {
 "use strict";
 
 /* VanillaJS + jQuery */
@@ -26,11 +26,12 @@ function Failure(type,message) {
 	this.name = "Failure";
 	this.type = type || "";
 	this.message = message || "Failure";
+	console.debug(this.toString());
 }
 Failure.prototype = new Error();
 Failure.prototype.constructor = Failure;
 Failure.prototype.toString = function () { return "["+this.type+" failure] "+this.message; };
-Failure.prototype.fail = function (err) { if (!err && this instanceof Failure) err=this; alert(err.toString()); };
+Failure.prototype.fail = function (err) { if (!err && this instanceof Failure) err=this; setTimeout(function(){ alert(err.toString()); },1); };
 Failure.fail=Failure.prototype.fail;
 
 
@@ -187,7 +188,7 @@ function appVisibility() {
 	// Warn if the browser doesn't support addEventListener or the Page Visibility API
 	if (typeof document.addEventListener === "undefined" ||
 		typeof hidden === "undefined") {
-		alert("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+		(new Failure("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.")).fail();
 
 	// Handle page visibility change  
 	} else {
@@ -258,6 +259,7 @@ function fetchAuthToken(force_token_refresh) {
 var GEOLOC={
 	/* Current position */
 	pos:null
+	,onChangeHandlers:[]
 
 	/* internal: Location watch id */
 	,_watcher:null
@@ -279,39 +281,130 @@ var GEOLOC={
 		var deferred=when.defer()
 			,pos=null;
 
-		navigator.geolocation.getCurrentPosition(
-			/* Success */
-			function (position) {
+			GEOLOC.locate({quick:true})
+			.then(
+				 deferred.resolve
+				,function () { /* Fallback */
+					GEOLOC.locate({fallback:true}).then(deferred.resolve,deferred.reject);
+				}
+			);
+
+		return deferred.promise;
+	}
+
+	/* Get current geo */
+	,LOCATE_QUICK_TIMEOUT:3000
+	,LOCATE_FALLBACK_TIMEOUT:5000
+	,locate:function(settings) {
+		var deferred=when.defer()
+			,P=deferred.promise
+			,posobj={};
+
+		/* Fallback method */
+		if (settings.fallback) {
+			var fallback_pos={ coords:{latitude:47,longitude:19} };
+
+			/* Fallback XHR - get location by ip from online service */
+			var xhr = new XMLHttpRequest({mozSystem:true});
+
+			/* Set hard timeout on fallback API request, too */
+			P=timeout(P,GEOLOC.LOCATE_FALLBACK_TIMEOUT);
+			//P=timeout(P,1);
+
+			xhr.ontimeout=function () {
+				xhr.abort();
+				//(new Failure("ui")).fail();  ,"Could not get your accurate position, fallback timed out. Check your GPS & connectivity settings, then tap the Refresh Location icon to try again!"
+				deferred.reject(new Failure("xhr-timeout","Request timed out! (timeout value exceeded: "+xhr.timeout+"ms)"));
+			};
+
+			/* Initiate freegeoip API call */
+			xhr.open("GET", "http://freegeoip.net/json/", true);
+			xhr.timeout=GEOLOC.LOCATE_FALLBACK_TIMEOUT;
+
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200 && xhr.responseText) {
+						try {
+							var result=xhr.responseJSON || JSON.parse(xhr.responseText);
+							if (!result) return deferred.reject(new Failure("json","JSON error or empty result!"));
+
+
+							fallback_pos.coords.latitude=result.latitude;
+							fallback_pos.coords.longitude=result.longitude;
+							GEOLOC._updatePosition(fallback_pos);
+							deferred.resolve(GEOLOC.pos);
+							(new Failure("ui","Could not get your accurate position, fallback is used. Check your GPS settings, then tap the Refresh Location icon to try again!")).fail();
+						}
+						catch (err) {
+							return deferred.reject(new Failure("json","JSON.parse error: %s!",err));
+						}
+					} else {
+						deferred.reject(new Failure("xhr-http","Service error! (HTTP/"+xhr.status+")"));
+					}
+				}
+
+			}; /*->onreadystatechange*/
+
+
+			xhr.send();
+			return P;
+		}
+
+		/* No geolocation support */
+		if (!("geolocation" in navigator)) {
+			deferred.reject(new Failure("unsupported","GEOLocation APU not supported!"));
+			return P;
+		}
+
+		/* API request default settings */
+		posobj.enableHighAccuracy=true;
+		posobj.maximumAge=15000;
+
+		/* Quick-response settings */
+		if (settings.quick) {
+			posobj.enableHighAccuracy=false;
+			posobj.timeout=GEOLOC.LOCATE_QUICK_TIMEOUT;
+			posobj.maximumAge=60000;
+
+			/* Hard timeout on Quick geoloc */
+			P=timeout(P,GEOLOC.LOCATE_QUICK_TIMEOUT);
+		}
+
+		GEOLOC._fetcher=navigator.geolocation.getCurrentPosition(
+			function (position) { /* Success */
 				console.debug("GEO: ",position.coords.latitude+","+position.coords.longitude);
 
 				GEOLOC._updatePosition(position);
 				deferred.resolve(GEOLOC.pos);
 			}
 
-			/* Failure */
-			,function () {
+			,function () { /* Failure */
 				deferred.reject(new Failure("geo","Getting current location failed!"));
 			}
+			,posobj
 		);
 
-		return deferred.promise;
-	}
+		if (settings.follow && typeof settings.follow === "function") {
+			GEOLOC._watcher=navigator.geolocation.watchPosition(
+				function (position) { /* Success */
+					GEOLOC._updatePosition(position);
+					settings.follow(true);
+				}
 
-	/* Follow geolocation changes */
-	,follow:function() {
-		GEOLOC._watcher=navigator.geolocation.watchPosition(
-			/* Success */
-			GEOLOC._updatePosition
-
-			/* Failure */
-			,function () {
-				console.error("Failed to get GEOLocation on watch.");
-			}
-		,{ enableHighAccuracy:true, maximumAge:15000, timeout:13000 });
+				,function () { /* Failure */
+					console.error("Failed to get GEOLocation on follow.");
+					settings.follow(false);
+				}
+				,{ enableHighAccuracy:true, maximumAge:15000, timeout:13000 }
+			);
+			
+		}/*if follow */
+	
+		return P;
 	}
 
 	/* Suspend following geolocation changes */
-	,stopFollowing:function () {}
+	,stopWatching:function () {}
 }; /* GEOLOC */
 
 
@@ -329,28 +422,24 @@ if (loginButton) {
 
 
 
-/* TODO: Make sure to display map regardless of auth status */
-function showMap(location) {
+function showLeafletMap(location) {
 	var map_lat=location.coords.latitude
 		 ,map_lon=location.coords.longitude;
 
 	/* Create map */
-	var map = mapbox.map('map');
+	var map = L.map('mapdiv').setView([map_lat, map_lon], 7)
+	,map_url='http://{s}.tile.cloudmade.com/e67291c638a141a29774d314befca457/{styleId}/256/{z}/{x}/{y}.png'
+	,map_attr='&copy; ...';
 
-	/* Map layer */
-	map.addLayer(mapbox.layer().id('examples.map-vyofok3q'));
-	/* Markers layer */
-	var markerLayer = mapbox.markers.layer();
+	/* Add map tile layer */
+	L.tileLayer(map_url, {attribution: map_attr, styleId: 997}).addTo(map);
 
-	/* Add marker feature */
-	markerLayer.add_feature({
-		geometry: { coordinates: [ map_lat,map_lon ] },
-		properties: { }
-	});
+	/* Estimated current location */
+	var marker = L.marker([map_lat, map_lon]);
+	marker.addTo(map);
 
-	/* Zoom and center on current location */
-	map.centerzoom({lat:map_lat,lon:map_lon},8,false);
-	map.centerzoom({lat:map_lat,lon:map_lon},17,true);
+	/* Location message */
+		//marker.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
 
 	CLIENT.map=map;
 }
@@ -427,7 +516,8 @@ try {
 
 	/* When [geo] -> Show location on map */
 	geo_flow.then(function() {
-		showMap(GEOLOC.pos);
+		//showMap(GEOLOC.pos);
+		showLeafletMap(GEOLOC.pos);
 	});
 
 	/* When [auth] & [geo] -> [explore]: Show venue list & map */
@@ -469,7 +559,10 @@ try {
 					,li=document.createElement("li");
 
 					li.id="v_"+vi.id;
-					li.innerHTML='<aside class="pack-end"><img alt="'+vi.categories[0].name+'" src="'+vi.categories[0].icon.prefix+'64'+vi.categories[0].icon.suffix+'"></aside>' +'<a href="#"><p>'+vi.name+' <strong></strong></p>' +'<p>'+vi.categories[0].name+'</p></a>';
+					 li.innerHTML=(vi.categories.length
+						? '<aside class="pack-end"><img alt="'+vi.categories[0].name+'" src="'+vi.categories[0].icon.prefix+'64'+vi.categories[0].icon.suffix+'"></aside>' +'<a href="#"><p>'+vi.name+' <strong></strong></p>' +'<p>'+vi.categories[0].name+'</p></a>'
+						: '<a href="#"><p>'+vi.name+' <strong></strong></p>'
+					);
 				vlist.appendChild(li);
 			}
 		}

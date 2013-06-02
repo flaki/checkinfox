@@ -9,10 +9,19 @@
 	display: none;
 }
 
+#mapdiv {
+	background: url(/images/loading.gif) scroll no-repeat center center;
+}
 #map>li {
 	transition: 1s ease all;
 	height: 15rem;
 }
+#map>li>#mapdiv {
+	min-height: 15rem;
+	height: 100%;
+	/*display: block; position: relative;	z-index: 100;*/
+}
+
 [data-type="list"]>#venuelist aside img {
 	background-color: #CCC;
 	width: 5em; height: 5em;
