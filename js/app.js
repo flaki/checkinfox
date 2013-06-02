@@ -225,40 +225,72 @@ var FSAPI={
 
 }; /*FSAPI*/
 
-function appVisibility() {
-	// Set the name of the hidden property and the change event for visibility
-	var hidden, visibilityChange;
-	if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
-		hidden = "hidden";
-		visibilityChange = "visibilitychange";
-	} else if (typeof document.mozHidden !== "undefined") {
-		hidden = "mozHidden";
-		visibilityChange = "mozvisibilitychange";
-	} else if (typeof document.msHidden !== "undefined") {
-		hidden = "msHidden";
-		visibilityChange = "msvisibilitychange";
-	} else if (typeof document.webkitHidden !== "undefined") {
-		hidden = "webkitHidden";
-		visibilityChange = "webkitvisibilitychange";
+var WEBAPP={
+	Install: function () {
+		// Install app
+		if (navigator.mozApps && navigator.mozApps.installPackage) {
+			var checkIfInstalled = navigator.mozApps.getSelf();
+
+			checkIfInstalled.onsuccess = function () {
+				if (checkIfInstalled.result) {
+					// Already installed
+
+				} else {
+					var install = $("#install"),
+						manifestURL = location.href.substring(0, location.href.lastIndexOf("/")) + "/package.webapp";
+
+					install.className = "show-install";
+					install.onclick = function () {
+						var installApp = navigator.mozApps.installPackage(manifestURL);
+
+						installApp.onsuccess = function(data) { install.className=""; };
+						installApp.onerror = function() { alert("Install failed: "+installApp.error.name); };
+					};
+				}/*CheckIfInstalled.result*/
+			};
+
+		/* Web application installation not supported */
+		} else {
+			console.log("Open Web Apps package installation not supported!");
+
+		}
 	}
 
-	// Warn if the browser doesn't support addEventListener or the Page Visibility API
-	if (typeof document.addEventListener === "undefined" ||
-		typeof hidden === "undefined") {
-		(new Failure("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.")).fail();
+	,Visibility: function () {
+		// Set the name of the hidden property and the change event for visibility
+		var hidden, visibilityChange;
+		if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+			hidden = "hidden";
+			visibilityChange = "visibilitychange";
+		} else if (typeof document.mozHidden !== "undefined") {
+			hidden = "mozHidden";
+			visibilityChange = "mozvisibilitychange";
+		} else if (typeof document.msHidden !== "undefined") {
+			hidden = "msHidden";
+			visibilityChange = "msvisibilitychange";
+		} else if (typeof document.webkitHidden !== "undefined") {
+			hidden = "webkitHidden";
+			visibilityChange = "webkitvisibilitychange";
+		}
 
-	// Handle page visibility change  
-	} else {
-		document.addEventListener(visibilityChange, function handleVisibilityChange() {
-			if (document[hidden]) {
-				console.log("app an background");//hidden
-			} else {
-				console.log("app reopened");//visible
-			}
-		}, false);
+		// Warn if the browser doesn't support addEventListener or the Page Visibility API
+		if (typeof document.addEventListener === "undefined" ||
+			typeof hidden === "undefined") {
+			(new Failure("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.")).fail();
 
-	}
-} /*appVisibility*/
+		// Handle page visibility change  
+		} else {
+			document.addEventListener(visibilityChange, function handleVisibilityChange() {
+				if (document[hidden]) {
+					console.log("app an background");//hidden
+				} else {
+					console.log("app reopened");//visible
+				}
+			}, false);
+
+		}
+	} /*appVisibility*/
+};/* WEBAPP */
 
 function fetchClientID() {
 	function generate() {
@@ -508,8 +540,11 @@ function init() {
 		/* Init buttons */
 		SCREENS.initButtons();
 
+		/* Initialize webapp install */
+		WEBAPP.Install();
+
 		/* Set up visibility listeners */
-		appVisibility();
+		WEBAPP.Visibility();
 
 		/* Initialization finished */
 		deferred.resolve();
