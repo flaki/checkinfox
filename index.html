@@ -26,7 +26,11 @@
 	</style>
 </head>
 
+
 <body>
+
+
+<article id="main_screen">
 
 <section role="region">
 	<header>
@@ -49,6 +53,14 @@
 		<a id="geolocation-find" class="recommend" role="button" href="#">Find my location</a>
 	</section>
 
+	<section>
+		<a id="foursquare-checkin" class="recommend" role="button" href="#checkin">Check me in!</a>
+	</section>
+
+	<section>
+		<a id="foursquare-venue" class="recommend" role="button" href="#venue">Show me the place!</a>
+	</section>
+
 	<section id="foursquare-actions" data-type="list">
 		<header>Last check-in:</header>
 		<ul>
@@ -69,6 +81,38 @@
 
 </div>
 
+</article>
+
+
+
+<article id="checkin_screen">
+
+	<section role="region">
+		<header>
+			<h1 class="screentitle">
+				Check me in!
+			</h1>
+		</header>
+	</section>
+
+	<section><a class="recommend" role="button" href="#">Take me back!</a></section>
+
+</article>
+
+
+<article id="venue_screen">
+
+	<section role="region">
+		<header>
+			<h1 class="screentitle">
+				Venue details:
+			</h1>
+		</header>
+	</section>
+
+	<section><a class="recommend" role="button" href="#">Take me back!</a></section>
+
+</article>
 
 
 <script type="text/javascript" data-main="js/app" src="js/require.js"></script>

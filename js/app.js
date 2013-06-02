@@ -19,7 +19,63 @@ var apptitle=$("#apptitle");
 var foursquare_auth=$("#foursquare-auth");
 var foursquare_info=$("#foursquare-info");
 
+var SCREENS={
+	S:{
+		'init': {l:0, scroll:0},
+		'main': {l:1, scroll:0},
+		'checkin': {l:2, scroll:0}, 'venue': {l:2, scroll:0}
+	}
 
+	,initButtons: function () {
+		$("#foursquare-checkin").onclick=function() {
+			SCREENS.activate("checkin"); return false;
+		};
+		$("#foursquare-venue").onclick=function() {
+			SCREENS.activate("venue"); return false;
+		};
+
+		var bblist=document.querySelectorAll('a[role="button"][href="#"]')
+			,l=bblist.length
+			,bbfunc=function (e) {
+				e.preventDefault();
+				SCREENS.main(e);
+				return false;
+			};
+
+		while (--l >= 0) bblist[l].addEventListener("click",bbfunc);
+	}
+
+	,main: function (src) {
+		return SCREENS.activate('main');
+	}
+	,activate: function (toScreen) {
+		var fromScreen='main',fs,ts=SCREENS.S[toScreen];
+		if (typeof ts==="undefined") return false;
+
+		/* Find current screen tag */
+		var bodyclasses=document.body.classList;
+		for (fromScreen in SCREENS.S) if (bodyclasses.contains("in-"+fromScreen)) break;
+
+		/* Remove screen tag and fetch fromScreen meta properties */
+		fs=SCREENS.S[fromScreen];
+		bodyclasses.remove("in-"+fromScreen);
+
+		/* Set new screen tag */
+		document.body.classList.add("in-"+toScreen);
+
+		/* On forward navigation store current scroll position and scroll to page top */
+		if (fs.l<ts.l) {
+			fs.scroll=window.scrollY;
+			setTimeout(function () { window.scrollTo(0,0) }, 250);
+			
+		}	else {
+			window.scrollTo(0,ts.scroll);
+		}
+		/* On backward navigation restore previous scroll position */
+
+		return true;
+	}
+};
 
 /* Failure: Errors with defined type */
 function Failure(type,message) {
@@ -33,6 +89,7 @@ Failure.prototype.constructor = Failure;
 Failure.prototype.toString = function () { return "["+this.type+" failure] "+this.message; };
 Failure.prototype.fail = function (err) { if (!err && this instanceof Failure) err=this; setTimeout(function(){ alert(err.toString()); },1); };
 Failure.fail=Failure.prototype.fail;
+
 
 
 var CLIENT={
@@ -414,7 +471,7 @@ var GEOLOC={
 var loginButton = $("#foursquare-login");
 if (loginButton) {
 	loginButton.onclick = function () {
-		CLIENT.showAuthUI();
+		CLIENT.showAuthUI(); return false;
 	};
 		
 } else console.error("No login button present!");
@@ -448,7 +505,13 @@ function showLeafletMap(location) {
 function init() {
 	var deferred=when.defer();
 	var initialize=function() {
+		/* Init buttons */
+		SCREENS.initButtons();
+
+		/* Set up visibility listeners */
 		appVisibility();
+
+		/* Initialization finished */
 		deferred.resolve();
 	};
 
@@ -558,11 +621,14 @@ try {
 				var vi=venues[i]
 					,li=document.createElement("li");
 
-					li.id="v_"+vi.id;
-					 li.innerHTML=(vi.categories.length
-						? '<aside class="pack-end"><img alt="'+vi.categories[0].name+'" src="'+vi.categories[0].icon.prefix+'64'+vi.categories[0].icon.suffix+'"></aside>' +'<a href="#"><p>'+vi.name+' <strong></strong></p>' +'<p>'+vi.categories[0].name+'</p></a>'
-						: '<a href="#"><p>'+vi.name+' <strong></strong></p>'
-					);
+				li.id="v_"+vi.id;
+				 li.innerHTML=(vi.categories.length
+					? '<aside class="pack-end"><img alt="'+vi.categories[0].name+'" src="'+vi.categories[0].icon.prefix+'64'+vi.categories[0].icon.suffix+'"></aside>' +'<a href="#"><p>'+vi.name+' <strong></strong></p>' +'<p>'+vi.categories[0].name+'</p></a>'
+					: '<p>'+vi.name+' <strong></strong></p>'
+				);
+
+				li.addEventListener("click",function(e){document.body.classList.add("in-venue");});
+
 				vlist.appendChild(li);
 			}
 		}

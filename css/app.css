@@ -1,3 +1,31 @@
+html {
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+}
+
+body {
+	transition: .5s transform ease;
+}
+article {
+	display: block;
+	position: absolute;
+	top: 0; left: 0; right: 0;
+}
+#checkin_screen,
+#venue_screen {
+	transform: translateX(100%);
+	z-index: 0;
+}
+
+/* Checkin state */
+body.in-checkin { transform: translateX(-100%); }
+body.in-checkin>#checkin_screen { z-index: 10; }
+
+body.in-venue { transform: translateX(-100%); }
+body.in-venue>#venue_screen { z-index: 10; }
+
+
 #main:not(.authenticated)>#foursquare-actions {
 	display: none;
 }
