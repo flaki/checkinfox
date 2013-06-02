@@ -66,7 +66,7 @@ var SCREENS={
 		/* On forward navigation store current scroll position and scroll to page top */
 		if (fs.l<ts.l) {
 			fs.scroll=window.scrollY;
-			setTimeout(function () { window.scrollTo(0,0) }, 250);
+			setTimeout(function () { window.scrollTo(0,0); }, 250);
 			
 		}	else {
 			window.scrollTo(0,ts.scroll);
@@ -74,6 +74,16 @@ var SCREENS={
 		/* On backward navigation restore previous scroll position */
 
 		return true;
+	}
+
+	,setup: function (screen,data) {
+		var vid=data.venueId;
+		if (!vid) { (new Failure('app','Invalid venue selected!')).fail(); }
+
+		var V=FSAPI.venues && FSAPI.venues[vid];
+		if (!vid) { (new Failure('app','Requested venue not found!')).fail(); }
+
+		$("#venue_screen header>.screentitle").textContent="Check in @ "+V.name;
 	}
 };
 
@@ -168,6 +178,9 @@ var FSAPI={
 
 	/* Authenticated user info */
 	,user:null
+
+	/* Venue info from last query */
+	,venues:null
 
 	,call:function(endpoint,params) {
 		var deferred=when.defer();
@@ -651,18 +664,24 @@ try {
 			var vlist=$("#venuelist");
 				vlist.innerHTML="";
 
+			var venueListClickHandler = function (e) {
+				SCREENS.setup("venue",this.dataset);
+				SCREENS.activate("venue");
+			};
+
 			/* Add venues */
 			for (i=0;i<l;++i) {
 				var vi=venues[i]
 					,li=document.createElement("li");
 
 				li.id="v_"+vi.id;
-				 li.innerHTML=(vi.categories.length
+				li.innerHTML=(vi.categories.length
 					? '<aside class="pack-end"><img alt="'+vi.categories[0].name+'" src="'+vi.categories[0].icon.prefix+'64'+vi.categories[0].icon.suffix+'"></aside>' +'<a href="#"><p>'+vi.name+' <strong></strong></p>' +'<p>'+vi.categories[0].name+'</p></a>'
 					: '<p>'+vi.name+' <strong></strong></p>'
 				);
 
-				li.addEventListener("click",function(e){document.body.classList.add("in-venue");});
+				li.dataSet.venueId=i;
+				li.addEventListener("click",venueListClickHandler);
 
 				vlist.appendChild(li);
 			}
