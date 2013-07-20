@@ -50,6 +50,9 @@ Failure.prototype.fail = function (err) {
 		);
 	
 	// Display other errors as a failure notification
+	} else if (err.payload && err.payload.name) {
+		UI.displayNotification("["+err.payload.name+"]: "+err,null,"failure");
+		
 	} else {
 		UI.displayNotification(err,null,"failure");
 
@@ -273,7 +276,7 @@ var UI={
 		}
 
 		/* Install application˛*/
-		,install: function (e) {
+		,installApp: function (e) {
 			WEBAPP.Install();
 		}
 
@@ -1085,7 +1088,7 @@ var WEBAPP={
 
 			// Try and install application
 			,function () {
-				var installApp = navigator.mozApps.installPackage("https://checkinfox-flaki.rhcloud.com/package.webapp");
+				var installApp = navigator.mozApps.installPackage("https://checkinfox-flaki.rhcloud.com/package.manifest");
 
 				// Install succeeded
 				installApp.onsuccess = function(data) {
@@ -1098,7 +1101,7 @@ var WEBAPP={
 				installApp.onerror = function() {
 					deferred.reject();
 
-					return (new Failure("install","App installation failed!")).fail();
+					return (new Failure("install","App installation failed!",installApp.error)).fail();
 				};
 
 			}
