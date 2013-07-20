@@ -1,25 +1,23 @@
 {
-	"name": "Check-in Fox",
+	"name": "Check-in Fox"
+	,"version": "0.4.1"
 
-	"version": "0.4.1",
-	"installs_allowed_from": ["*"],
-	"launch_path": "/index.html",
+	,"developer": {
+			"name": "István Szmozsánszky (Flaki)",
+			"url": "https://twitter.com/slsoftworks"
+	},
 
-	"icons": {
+	,"installs_allowed_from": ["*"]
+	,"launch_path": "/index.html"
+
+	,"icons": {
 		 "16": "/images/icon-16.png",
 		 "32": "/images/icon-32.png",
 		 "60": "/images/icon.png",
 		 "64": "/images/icon-64.png",
 		"128": "/images/icon-128.png"
-	},
-	"developer": {
-			"name": "István Szmozsánszky (Flaki)",
-			"url": "https://twitter.com/slsoftworks"
-	},
-	"locales": {
-		"hu":
-			{"description": "Firefox OS alkalmazás a foursquare közösségi oldalhoz"}
-	},
+	}
+
 	"default_locale": "en",
 	"description": "Firefox OS client application for the foursquare network",
 
