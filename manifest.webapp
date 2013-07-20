@@ -1,7 +1,7 @@
 {
 	"name": "Check-in Fox",
 
-	"version": "0.4",
+	"version": "0.4.1",
 	"installs_allowed_from": ["*"],
 	"launch_path": "/index.html",
 
@@ -14,7 +14,7 @@
 	},
 	"developer": {
 			"name": "István Szmozsánszky (Flaki)",
-			"url": "https://checkinfox-flaki.rhcloud.com"
+			"url": "https://twitter.com/slsoftworks"
 	},
 	"locales": {
 		"hu":

@@ -1,9 +1,11 @@
 {
 	"name": "Check-in Fox"
-	,"package_path": "https://checkinfox-flaki.rhcloud.com/checkinfox-0-4-1.zip"
 	,"version": "0.4.1"
+
+	,"package_path": "https://checkinfox-flaki.rhcloud.com/checkinfox-0-4-1.zip"
+
 	,"developer": {
-		"name": "István Szmozsánszky",
-		"url": "http://twitter.com/slsoftworks"
+			"name": "István Szmozsánszky (Flaki)",
+			"url": "https://twitter.com/slsoftworks"
 	}
 }
