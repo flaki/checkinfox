@@ -1,124 +1,312 @@
 <!DOCTYPE html>
-<html>
-<!--
-	Based on the
-		https://github.com/robnyman/Firefox-OS-Boilerplate-App
- -->
+<html manifest="manifest.appcache">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
+	<meta name="author" content="István Szmozsánszky (Flaki)">
 
 	<title>Check-in Fox</title>
 	<link rel="shortcut icon" type="image/png" href="images/icon.png">
 
 	<link rel="stylesheet" type="text/css" href="css/base.css">
-	<link rel="stylesheet" type="text/css" href="css/headers.css">
 	<link rel="stylesheet" type="text/css" href="css/transitions.css">
 
-	<link rel="stylesheet" type="text/css" href="shared/style/buttons.css">
-	<link rel="stylesheet" type="text/css" href="shared/style_unstable/lists.css">
+	<link rel="stylesheet" type="text/css" href="style/lists.css">
+	<link rel="stylesheet" type="text/css" href="style/input_areas.css">
 
-	<link rel="stylesheet" type="text/css" href="css/app.css">
+	<link href="style/buttons.css"  rel="stylesheet" type="text/css" >
+	<link href="style/headers.css" rel="stylesheet" type="text/css" >
+	<link href="style/drawer.css"  rel="stylesheet" type="text/css" >
+	<link href="style/status.css"  rel="stylesheet" type="text/css" >
+	<link href="style/confirm.css"  rel="stylesheet" type="text/css" >
+	<link href="style/progress_activity.css"  rel="stylesheet" type="text/css" >
 
-<!--	<link href='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.css' rel='stylesheet' />-->
+	<link href="style/icons/action_icons.css" rel="stylesheet" type="text/css" >
+	<link href="style/icons/comms_icons.css"  rel="stylesheet" type="text/css" >
+	<link href="style/icons/media_icons.css"  rel="stylesheet" type="text/css" >
+
 	<link href='js/leaflet/dist/leaflet.css' rel='stylesheet' />
 
-	</style>
+	<link rel="stylesheet" type="text/css" href="css/icons.css">
+	<link rel="stylesheet" type="text/css" href="css/app.css">
 </head>
 
 
-<body>
+<body class="init">
 
 
-<article id="main_screen">
-
-<section role="toolbar">
-	<header>
-		<menu type="toolbar">
-			<button id="install"><span class="icon icon-add">add</span></button>
-		</menu>
-		<h1 id="apptitle">
-			Check-in Fox
-		</h1>
-	</header>
+<section id="init">
+	<img src="images/icon.png" alt="Authenticating..." />
+	<p>Authenticating...</p>
 </section>
 
 
-<div id="main">
-	<section id="foursquare-auth">
-		<a id="foursquare-login" class="recommend" role="button" href="#">Log in to FourSquare</a>
-	</section>
+<form id="dialog" role="dialog" data-type="confirm" name="dialogBox">
+	<section></section>
+	<menu></menu>
+</form>
 
-	<section id="geolocation">
-		<a id="geolocation-find" class="recommend" role="button" href="#">Find my location</a>
-	</section>
 
-	<section>
-		<a id="foursquare-checkin" class="recommend" role="button" href="#checkin">Check me in!</a>
-	</section>
-
-	<section>
-		<a id="foursquare-venue" class="recommend" role="button" href="#venue">Show me the place!</a>
-	</section>
-
-	<section id="foursquare-actions" data-type="list">
-		<header>Last check-in:</header>
+<section data-type="sidebar">
+	<header>
+		<menu type="toolbar">
+			<a href="#settings" data-action="settings"><span class="inline-icon i-settings-light">settings</span></a>
+		</menu>
+		<h1>Check-in Fox</h1>
+	</header>
+	<nav>
 		<ul>
-			<li>
-				<p id="foursquare-info">Please authenticate with FourSquare first.</p>
-			</li>
+			<li><a href="#main">Explore and check in</a></li>
+			<li><a href="#friends">What are my friends doing?</a></li>
+			<li><a href="#profile">View my profile</a></li>
+			<li><a href="#help">Help</a></li>
+			<li><a href="#about">About</a></li>
+			<li><a href="#logout">Log out</a></li>
+			<li><a href="#install" class="install">Install</a></li>
 		</ul>
+		<!-- <h2>Subtitle</h2><ul><li><a href="#content">label</a></li></ul> -->
+	</nav>
+</section>
 
-		<header>Where are you now?</header>
-		<ul id="map">
-			<li><div id="mapdiv"></div></li>
+<section id="drawer" role="region" class="main screen">
+	<header>
+		<a href="#"><span class="icon icon-menu">hide sidebar</span></a>
+		<a href="#drawer"><span class="icon icon-menu">show sidebar</span></a>
+		<menu type="toolbar">
+			<button id="GEOLOC" data-action="geo" data-state=""><span>position</span></button>
+		</menu>
+		<h1 id="apptitle">Check-in Fox</h1>
+	</header>
+
+	<div class="main">
+		<section class="authorized" id="main-profile" data-type="list">
+			<header>Last check-in:</header>
+			<ul><li></li></ul>
+		</section>
+
+		<section class="authorized" id="main-venues" data-type="list">
+			<header>Where are you now?</header>
+			<ul id="venuesearch">
+				<li><form name="mainVenueSearch">
+					<p>
+					<input type="text" name="searchQuery" placeholder="Filter &amp; Search venues" required="">
+					<button name="clear" type="reset">Clear</button>
+					</p>
+				</form></li>
+			</ul>
+			<ul id="venuelist"></ul>
+		</section>
+
+	</div>
+
+	<div id="map" class="tailmap">
+		<div id="mapdiv"></div>
+	</div>
+</section>
+
+
+<section id="auth" role="region" class="sub screen">
+	<header>
+		<h1>Check-in Fox</h1>
+	</header>
+
+	<div class="main">
+		<section>
+			<article>
+				<h2>Welcome to Check-in Fox!</h2>
+				<p>Check-in Fox is a <a href="http://m.foursquare.com">foursquare</a> client for <a href="http://www.mozilla.org/en-US/firefox/os/">Firefox OS</a> ‒ Mozilla's new open-source operating system.</p>
+				<p>See what your friends are up to and share your favorite places, best picks and enjoyable moments through the power of checking in at your favorite pubs, posting photos of your travels, leaving tips for your number one restaurant and more!</p>
+
+				<p>Before you can use the app, you need to connect it to your FourSquare account - use the button bellow to log in and authenticate with FourSquare:</p>
+
+				<a class="recommend" role="button" href="#login">Log in to FourSquare</a>
+
+				<h2>Contribute!</h2>
+				<p>Check-in Fox is still a work-in-progress beta, that means a lot of functions are unavailable as of yet, but fret not, as they are coming sooner, rather than later. Check the <a href="https://github.com/flaki/checkinfox">GitHub Repository</a>, help extending Check-in Fox yourself by filing bugs, ideas, or helping out in fixing bugs and implementing much-requested features!</p>
+				<p>In the coming weeks, as Check-in Fox matures, it would be translated into several languages. If you want to help out in the localization process, just <a href="https://twitter.com/slsoftworks">drop me a tweet</a> (all locales are welcome, though <em>spanish</em>, <em>polish</em>, <em>german</em> and <em>french</em> translations remain a priority).</p>
+
+				<div class="install">
+					<h2>Install!</h2>
+					<p>You could always use Check-in Fox from the browser of your Firefox OS phone (and most of the functions should work in other phones &amp; browsers, too) by opening <a href="https://checkinfox-flaki.rhcloud.com/">https://checkinfox-flaki.rhcloud.com/</a>.</p>
+					<p>If you would like to install Check-in Fox on your phone, there is a packaged version in the <a href="http://marketplace.mozilla.com/">Firefox Marketplace</a> ‒ or you could choose to install it from the home page:</p>
+
+					<a class="recommend" role="button" data-action="installApp">Install Check-in Fox</a>
+
+				</div>
+			<article>
+		</section>
+</section>
+
+
+<section id="venue" role="region" class="sub screen">
+	<header>
+		<button data-target="#"><span class="icon icon-back">back</span></button>
+		<h1 class="screentitle">
+			Venue details:
+		</h1>
+	</header>
+
+	<div class="main">
+		<ul class="photos">
+			<li></li>
 		</ul>
-		<ul id="venuelist">
-			<li>
-			</li>
-		</ul>
-	</section>
+		<form name="publishCheckin">
+			<p>
+				<textarea name="shout" placeholder="Shoutout..."></textarea>
+					<input hidden name="shareFacebook" type="checkbox" />
+					<button data-input="shareFacebook" class="share icon" data-action="shareToggle">Share on Facebook</button>
 
-</div>
+					<input hidden name="shareTwitter" type="checkbox" />
+					<button data-input="shareTwitter" class="share icon" data-action="shareToggle">Share on Twitter</button>
 
-</article>
+				<button class="recommend" data-action="publishCheckin">Check in here!</button>
+
+				<div role="toolbar"><ul>
+					<li><button data-action="attachPhoto"><span class="inline-icon i-photo-dark">Add photo to checkin</span> Attach photo</button>
+					<li><button data-action="checkInAFriend"><span class="inline-icon i-person-dark">Check in with friends</span> Add a friend</button>
+				</ul></div>
+
+				<div id="attachPhotoPlaceholder" class="photobox" data-action="toggleActive" hidden>
+					<button data-action="removeAttachedPhoto">Remove</button>
+					<img src="" alt="" />
+					<label></label>
+				</div>
+			</p>
+		</form>
+	</div>
+</section>
 
 
 
-<article id="checkin_screen">
+<section id="help" role="region" class="sub screen">
+	<header>
+		<button data-target="#"><span class="icon icon-back">back</span></button>
+		<h1>Check-in Fox Help</h1>
+	</header>
 
-	<section role="toolbar">
-		<header>
-			<h1 class="screentitle">
-				Check me in!
-			</h1>
-		</header>
-	</section>
+	<div class="main">
+		<section>
+			<article>
 
-	<section><a class="recommend" role="button" href="#">Take me back!</a></section>
+				<h2>Main screen</h2>
+				<p>After authentication, you are presented the main screen of Check-in Fox. On the top left corner is the menu button, tapping this gives you access to the menu drawer. Most functions - as of now - remain unimplemented, you can access the <em>Help</em> &amp; <em>About</em> sections, and <em>Log Out</em> here.</p>
 
-</article>
+				<h3>The Geolocation button</h3>
+				<p>On the top-right corner of the main screen is the <em>Geolocation</em> button: the spinning animated <em>Geolocation</em> button means the device is looking for a precise location (GPS fix), after a precise location is acquired, the icon changes to a stationary, unanimated one and the map on the bottom of the screen is updated to reflect your supposed location. Your geolocation is automatically updated as you travel through the wilds, but you could click this button to manually start a location refresh (this will also result in reloading of the venue list, showing the venues close to your new location).</p>
+
+				<h3>Your last check in</h3>
+				<p>On the top of the main screen, some details about your last check-in are displayed: when and where were you last seen, according to foursquare.</p>
+
+				<h3>Venue list and search</h3>
+				<p>Under your last check-in is a search box and a list of venues around your supposed location. You could type any search terms into the search box, and hit enter if you are looking for a specific venue, or click the <em>Refresh</em> button on the right to have the list of venues updated. By clicking on a venue in the venue list you are taken to te <em>Check-in</em> screen.</p>
+
+				<h3>Map</h3>
+				<p>The map displays your current location, according to your device's measurements. As acquiring a GPS fix on current devices may take a significant amount of time, we initially try to determine your approximate location (that is, country and city or area) to show this on the map - as this is derived from your IP address, this might be significantly further from your actual location. When the device has acquired your (more) precise location via GPS, the map is zoomed in at the presumed position where a blip represents your acquired location. You could zoom &amp; scroll the minimap to pan around.</p>
+				<p><em>Note: map functionality will be significantly increased in coming versions, with full-screen map, displaying of friends and venues around and more.</em></p>
+
+				<h2>Checking in</h2>
+				<p>By tapping on a venue in the venue list, you are taken to the check-in screen where you could publish a check-in with optional accompanying shout message and/or photo. If there are any public photos for the selected venue, they are displayed on the top of the screen in a rotating fashion.</p>
+
+				<h3>Checking in</h3>
+				<p>You could publish a check-in by tapping the highlighted <em>Check in here!</em> button in the center of the screen. You may optionally disclose a shout (short message) via the text box, or attach a photo via the <em>Attach photo</em> button. By clicking the <em>Attach photo</em> button, Firefox OS presents you with multitude of ways to choose the photo - from either the Gallery/Memory Card, or snap one right there with the Camera app. The attached photo is displayed on the bottom of the check-in screen (tap to view full image). If you changed your mind, you could remove the photo with the overlaid <em>Remove</em> button. If you want to share your check-in (and/or shout, photo) with your friends, you may choose to tick one of the share buttons: <em>Share on Facebook</em> and <em>Share on Twitter</em> (or both). If you changed your mind, and decided not to check in, you could tap the back button on the top left corner to return to the main screen.</p>
+				<p><em>Note: the Add a friend (tagging) button is not avaliable in current version of the application</em></p>
+
+				<h3>Post check-in screen</h3>
+				<p>After a successful check-in, the <em>Post check-in screen</em> is displayed, where you could review your results, and the app lists the points you got for this check-in. If you attached a photo to the check-in, it is shown here again as well. Click <em>OK</em> on the Post check-in screen to return to the main screen</p>
+
+				<h2>Geolocation in Firefox OS</h2>
+				<p>Geolocation in early versions of Firefox OS makes use of the device's <em>(A)GPS</em> sensor. This means, that acquiring a precise location might take significant amount of time, and would probably work only outdoors, with clear view of the sky. This makes it harder for one to use this for such highly location-dependent applications, as foursquare. The cell network &amp; wi-fi based geolocation on Firefox OS devices poses several privacy-related issues - and mozilla traditionally takes privacy very seriously - but is a very actively developed portion of the OS, and is coming to Firefox OS, rather sooner than later.</p>
+
+			<article>
+		</section>
+</section>
 
 
-<article id="venue_screen">
+<section id="about" role="region" class="sub screen">
+	<header>
+		<button data-target="#"><span class="icon icon-back">back</span></button>
+		<h1>About Check-in Fox</h1>
+	</header>
 
-	<section role="toolbar">
-		<header>
-			<h1 class="screentitle">
-				Venue details:
-			</h1>
-		</header>
-	</section>
+	<div class="main">
+		<section>
+			<article>
+				<header>
+					<img src="images/mascot.png" alt="Logo" />
+					<h1>Check-in Fox</h1>
+					<label>version <span class="app-version">0.4</span> (<time>2013-07-20</time>)</label>
+				</header>
 
-	<section><a class="recommend" role="button" href="#">Take me back!</a></section>
+				<h2>About Check-in Fox</h2>
+				<p>Check-in Fox is a <a href="http://m.foursquare.com">foursquare</a> client for <a href="http://www.mozilla.org/en-US/firefox/os/">Firefox OS</a> ‒ Mozilla's new open-source operating system. Check-in Fox is still in its early infancy, with lots of missing features and quite possibly some nasty bugs, so please be patient and/or <a href="https://github.com/flaki/checkinfox">contribute</a>!</p>
 
-</article>
+				<h2>Credits</h2>
+				<p>Technology and assets used in the making of Check-in Fox</p>
+				<ul>
+					<li>The <a href="https://hacks.mozilla.org/2013/01/introducing-the-firefox-os-boilerplate-app/">Firefox OS Boilerplate App</a> by Robert Nyman is an excellent start for anyone giving a try to Firefox OS development
+					<li>The <a href="http://buildingfirefoxos.com/">Firefox OS Building Blocks</a> are immensely helpful when you want to create an application that blends in with the stock system interface
+					<li>Code makes extensive use of Promises/A+ specification via <a href="https://github.com/cujojs/when/">when.js</a>
+					<li>GeoIP positioning via <a href="">http://freegeoip.net</a>
+					<li>Maps via the awesome <a href="http://leafletjs.com/">Leaflet</a>, with tiles by <a href="http://cloudmade.com/">Cloudmade</a>
+					<li>Check-in Fox logo/mascot by <a href="http://blog.seanmartell.com/">Sean Martell</a>
+				</ul>
+
+				<h2>Privacy</h2>
+				<p>Please note that Check-in Fox uses the online freegeoip.net service to provide a fallback approximate location based on your IP-address. This is neccessary as current versions of Firefox OS only support GPS/A-GPS geolocation, which is slow to start up and does not seem to work indoors. Mozilla already started creating their own wifi- and cell-based geolocation service, that would replace and obsolete the need for such hacks, but until that they are unfortunately needed.</p>
+				<p>Check-in Fox uses the <a href="https://developer.foursquare.com/docs/">foursquare API</a> to publish checkins. To interact with the API, the user needs to be authenticated and request an "API KEY" for the client. We cache this API key in an online database and bind it to the unique ClientID of the authenticating user - no one could access your API key, without first somehow accessing your device and/or reading your ClientID. We do not use, distribute or in other ways publish these, or any other sensitive data of the authenticated user.</p>
+				<p>The above method is required due to Check-in Fox uses the Application API of foursquare, and this is the only viable method of keeping the application "secret" - well, secret. In the future, there might be a setting where you cold choose to create your own API key and use Check-in Fox with that application secret - without the need of online authentication. If you are still concerned, feel free to check out the <a href="https://github.com/flaki/checkinfox-host">source on GitHub</a>.</p>
+				<p>Anything you do while using Check-in Fox is absolutely up to you. We do not log, track or in other ways monitor your activity on foursquare, and any liabilities, mishaps and problems are entirely yours to solve - we do and can not take any responsibility for your actions. In short, use the application at your own risk - and don't blame it on us if/when everything goes south.</p>
+				<p>Should you run into problems, send a tweet to <a href="http://twitter.com/checkinfox">@checkinfox</a>, or if you are more into oldschool, drop us a mail at <a href="mailto:checkinfox.devs@gmail.com">checkinfox.devs@gmail.com</a>.</p>
+
+				<h2>Changelog</h2>
+				<ul>
+					<li><strong>[2013-07-20] v0.4</strong>
+					First public release, support for basic features: authentication, geolocation, listing and searching nearby venues, checking in with shout, sharing and photo upload options.
+				</ul>
+
+				<h2>Created by</h2>
+				<p>István Szmozsánszky (<a href="http://twitter.com/slsoftworks">Flaki</a>)</p>
+
+				<h2>Contributors</h2>
+				<ul></ul>
+
+				<h2>Licence</h2>
+				<p style="font-family: monospace; padding: 0 1 rem; text-align: justify;";><small>
+Copyright (c) 2013, István Szmozsánszky<br />
+All rights reserved.<br />
+<br />
+Redistribution and use in source and binary forms, with or without modification, are
+permitted provided that the following conditions are met:<br />
+<br />
+   1. Redistributions of source code must retain the above copyright notice, this list of
+      conditions and the following disclaimer.<br />
+<br />
+   2. Redistributions in binary form must reproduce the above copyright notice, this list
+      of conditions and the following disclaimer in the documentation and/or other materials
+      provided with the distribution.<br />
+<br />
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</small></p>
+
+			<article>
+		</section>
+</section>
+
 
 
 <script type="text/javascript" data-main="js/app" src="js/require.js"></script>
 
-<!--<script src='http://api.tiles.mapbox.com/mapbox.js/v0.6.7/mapbox.js'></script>-->
 <script type="text/javascript" src='js/leaflet/dist/leaflet.js'></script>
+
+<!-- Based on the https://github.com/robnyman/Firefox-OS-Boilerplate-App -->
 
 </body>
 </html>

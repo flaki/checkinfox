@@ -1,11 +1,10 @@
 {
 	"name": "Check-in Fox",
 
-	"version": "0.1",
-	"release_notes": "First release",
+	"version": "0.4",
+	"release_notes": "First public release",
 	"installs_allowed_from": ["*"],
 	"launch_path": "/index.html",
-	"type": "privileged",
 
 	"icons": {
 		 "16": "/images/icon-16.png",
@@ -15,22 +14,21 @@
 		"128": "/images/icon-128.png"
 	},
 	"developer": {
-			"name": "Szmozsánszky István",
-			"url": "http://www.flaki.hu"
+			"name": "István Szmozsánszky (Flaki)",
+			"url": "https://checkinfox-flaki.rhcloud.com"
 	},
 	"locales": {
 		"hu":
-			{"description": "Firefox OS alkalmazás a FourSquare használatára"}
+			{"description": "Firefox OS alkalmazás a foursquare közösségi oldalhoz"}
 	},
 	"default_locale": "en",
-	"description": "Firefox OS app with basic FourSquare functionality",
+	"description": "Firefox OS client application for the foursquare network",
 
 	"permissions": {
+		"geolocation": { "description" : "Marking out user location" }
+		,"storage": { "description" : "Cache data for offline use." }
+
 		 "desktop-notification": { "description" : "To show notifications" }
 		,"alarms": { "description" : "To schedule alarms" }
-		,"geolocation": { "description" : "Marking out user location" }
-		,"browser": { "description" : "For authentication and log in to foursquare" }
-		,"storage": { "description" : "Cache data for offline use." }
-		,"systemXHR": { "description" : "For accessing the FourSquare API." }
 	}
 }

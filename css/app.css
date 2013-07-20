@@ -1,61 +1,546 @@
-html {
-	width: 100%;
-	height: 100%;
-	overflow-x: hidden;
-}
-
-body {
-	transition: .5s transform ease;
-}
-
-article {
+/* Screens framework */
+#init,
+.screen {
 	display: block;
 	position: absolute;
-	top: 0; left: 0; right: 0;
-	padding: 1rem;
+
+	top: 0; left: 0; right: 0; bottom: 0;
+	width: 100%; height: 100%;
+
+	z-index: 100;
 }
 
-#checkin_screen,
-#venue_screen {
-	transform: translateX(100%);
+.screen>div {
+	background: white;
+}
+
+.sub.screen:not(:target) {
+	pointer-events: none;
+}
+
+
+/* Remove init animation */
+body.startup > [role="dialog"] {
+	animation: fadeOutDialog 1ms forwards !important;
+}
+body>[data-type="sidebar"] {
+	visibility: visible;
+	transition: all 0s linear 1s;
+}
+body.init>[data-type="sidebar"] {
+	visibility: hidden;
+}
+
+
+body:not(.in-main) > .main.screen>header { animation: headerCurrentToLeft .4s forwards; }
+body:not(.in-main) > .main.screen>div    { animation: currentToLeft .4s forwards; }
+
+.sub.screen:target>header { animation: fadeIn .4s forwards; }
+.sub.screen:target>div    { animation: rightToCurrent .4s forwards; }
+
+
+body.in-main > .main.screen>header { animation: headerLeftToCurrent .4s forwards; }
+body.in-main > .main.screen>div   { animation: leftToCurrent .4s forwards; }
+
+body.in-main > .sub.screen>header { animation: fadeOut .4s forwards; }
+body.in-main > .sub.screen>div    { animation: currentToRight .4s forwards; }
+
+
+/* Hide unselected subscreens */
+ body.in-venue > .sub.screen:not(#venue)
+,body.in-about > .sub.screen:not(#about)
+,body.in-help  > .sub.screen:not(#help)
+,body.in-auth  > .sub.screen:not(#auth)
+{
+	display:none;
+}
+
+
+
+/* Main section/part of the screen */
+.screen > .main {
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	height: -moz-calc(100% - 5rem);
+	height: calc(100% - 5rem);
+
+	padding: 0;
+}
+
+
+/* Splash screen on Init */
+body.init > .screen:not(.main) {
+	display: none;
+}
+
+#init {
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 3s, visibility 3s, z-index 0s linear 3s;
+
+	background: white;
+	text-align: center;
+	padding-top: 50%;
 	z-index: 0;
+
+	pointer-events: none;
+}
+body.init > #init {
+	opacity: 1;
+
+	visibility: visible;
+	transition: none;
+	z-index: 101;
+
+	pointer-events: all;
 }
 
-/* Checkin state */
-body.in-checkin { transform: translateX(-100%); }
-body.in-checkin>#checkin_screen { z-index: 10; }
+@keyframes initLogoRotation {
+	  0% { transform: scaleX( 1); }
+	 50% { transform: scaleX( 0); }
+	100% { transform: scaleX( 1); }
+}
+body.init > #init>img {
+	animation: initLogoRotation 1s infinite;
+}
 
-body.in-venue { transform: translateX(-100%); }
-body.in-venue>#venue_screen { z-index: 10; }
+@keyframes initTextPulsating {
+	  0% { opacity: .1; }
+	 50% { opacity:  1; }
+	100% { opacity: .1; }
+}
+#init>p {
+	color: #333;
+	font-size: 1.8rem;
+}
+body.init > #init>p {
+	animation: initTextPulsating 2s infinite;
+}
 
 
-#main:not(.authenticated)>#foursquare-actions {
+
+/* Installation */
+body.noinstalls .install,
+body.installed .install {
 	display: none;
 }
-#main.authenticated>#foursquare-auth {
-	display: none;
+
+/* Authentication */
+body:not(.authenticated) .authorized { display: none; }
+body.authenticated .unauthorized { display: none; }
+
+
+/* Body of text, documentation or help */
+article {
+	padding: 1.5rem;
 }
 
-#main:not(.nolocation)>#geolocation {
-	display: none;
+article h2 {
+	border-bottom: 0.1rem solid rgb(255, 78, 0);
+	padding: 0.5rem 1rem;
+	margin: 0;
+	margin-top: 1rem;
+	font-size: 1.6rem;
+	line-height: 1.8rem;
+	font-weight: normal;
+	color: rgb(255, 78, 0);
+	text-transform: uppercase;
 }
 
-#mapdiv {
-	background: url(/images/loading.gif) scroll no-repeat center center;
+article h3 {
+	border-bottom: 0.1rem solid rgb(255, 78, 0);
+	padding: .25rem .5rem;
+	margin: 1rem 1rem 0;
+	font-size: 1.6rem;
+	line-height: 1.8rem;
+	font-weight: normal;
+	color: rgb(255, 78, 0);
 }
-#map>li {
-	transition: 1s ease all;
-	height: 15rem;
+
+article ul,
+article p {
+	margin: .8rem .2rem;
 }
-#map>li>#mapdiv {
-	min-height: 15rem;
+article h3+p,
+article h3+p+p {
+	margin: .5rem 1rem 0;
+}
+
+article *>a {
+	text-decoration: none;
+	color: rgb(255,78,0);
+	font-weight: 500;
+}
+
+article *>a:hover,
+article *>a:active {
+	color: #BBB;
+}
+
+article ul {
+	list-style: disc outside;
+	padding-left: 2rem;
+	margin: .5rem;
+	margin-top: 1rem;
+}
+
+article ul>li {
+	color: black;
+	line-height: 1.8rem;
+	margin-bottom: .6rem;
+}
+
+article ul>li>strong {
+	display: block;
+	margin-bottom: .25em;
+}
+
+article>header {
+	text-align: center;
+	margin-bottom: 2rem;
+}
+article>header>h1 {
+	padding: 0;
+	margin: 0; margin-top: -1rem;
+	font-size: 2.2rem;
+
+	font-weight: 500;
+	color: rgb(48, 48, 48);
+}
+
+/* About section */
+#about article>header>img {
+	width: 80%;
+	margin: 0; padding: 0;
+}
+
+#about article>header>label {
+	padding: 0;
+	margin: 0;
+	font-size: 1.8rem;
+	font-weight: 200;
+
+	color: rgb(48, 48, 48);
+}
+
+
+/* Show loading animation on an empty venuelist */
+#venuelist:empty {
+	background: white url("../images/loading.gif") scroll no-repeat center center;
+	min-height: 5rem;
+}
+
+/* Venue list venuetype-icons */
+#venuelist aside img {
+	background-color: #DDD;
+	width: 5rem; height: 5rem;
+	border-radius: 20%;
+	margin: .5rem;
+}
+
+
+/* Main screen map */
+.showmap > .main.screen > div.main {
+	height: -moz-calc(100% - 15rem);
+	height: calc(100% - 15rem);
+
+}
+
+/* Geolocation Map */
+:not(.showmap) > .main.screen>#map.tailmap {
+	display: none;
+}
+.showmap > .main.screen>#map.tailmap {
+	width: 100%;
+	height: 10rem;
+
+	z-index: 10;
+
+	background: url("../images/headers/ui/header.png") repeat-x scroll 0px 0px / auto 100% transparent;
+	padding-top: .5rem;
+}
+
+#map > #mapdiv {
+	background: white url("../images/loading.gif") scroll no-repeat center center;
+	/*min-height: 15rem;*/
 	height: 100%;
 	/*display: block; position: relative;	z-index: 100;*/
 }
 
-[data-type="list"]>#venuelist aside img {
-	background-color: #CCC;
-	width: 5em; height: 5em;
-	border-radius: 20%;
-	margin: .5em;
+
+/* Venue search on main screen */
+#venuesearch form>p {
+	padding: 0;
+	margin: 1rem 0;
+}
+#venuesearch form>p>input {
+	padding: .5rem;
+	font-size: 1.6rem;
+}
+#venuesearch form>p>input+button {
+	background-size: auto;
+	pointer-events: all;
+}
+#venuesearch form>p>input:not(:focus)+button {
+	background-image: url("../images/update.png");
+	opacity: .75;
+}
+
+
+/* Venue screen Photo display */
+#venue.screen > .main>.photos:empty {
+	height: 0;
+}
+#venue.screen > .main>.photos:not(:empty) {
+	overflow: hidden;
+	height: 140px;
+	transition: height 1s;
+}
+#venue.screen > .main>.photos>li {
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: cover;
+
+	opacity: 0;
+	height: 0;
+	transition: all .4s ease 0s;
+}
+
+#venue.screen > .main>.photos>li.show {
+	height: 140px;
+	opacity: 1;
+}
+
+#venue.screen > .main>.photos>li:not(.show) {
+	height: 0;
+}
+
+/* Venue screen Form */
+#venue.screen > .main>form {
+	padding: 1rem;
+}
+
+#venue.screen > .main>form>p>textarea {
+	width: 85%;
+	width: calc(100% - 5.5rem);
+	height: 9rem;
+	float: left;
+	margin-bottom: 1rem;
+	padding: .5rem;
+	font-size: 1.6rem;
+}
+
+#venue.screen > .main>form>div[role="toolbar"]>ul>li {
+	display: inline-block;
+	width: 48%;
+	margin: 0 1%;
+}
+#venue.screen > .main>form>div[role="toolbar"]>ul>li>button {
+	padding: 0 1rem;
+	font-size: 1.5rem;
+}
+#venue.screen > .main>form>div[role="toolbar"]>ul>li>button>.inline-icon {
+	vertical-align: top;
+}
+
+#venue.screen > .main>form>p>.share {
+	-moz-appearance: none;
+
+	float: right;
+	clear: right;
+	margin: .5rem;  margin: 4px;
+	width: 4rem;	width: 32px;
+	height: 4rem;   height: 32px;
+}
+
+#venue.screen > .main>form>p>[data-input="shareFacebook"] {
+	opacity: .5;
+	background-position: 0 0; /* i-facebook */ }
+#venue.screen > .main>form>p>input[name="shareFacebook"]:checked+[data-input="shareFacebook"] {
+	opacity: 1;
+	background-position: -30px 0; /* i-facebook-on */ }
+
+#venue.screen > .main>form>p>[data-input="shareTwitter"] {
+	opacity: .5;
+	background-position: -420px 0; /* i-twitter */ }
+#venue.screen > .main>form>p>input[name="shareTwitter"]:checked+[data-input="shareTwitter"] {
+	opacity: 1;
+	background-position: -450px 0; /* i-twitter-on */ }
+
+/* Photo box - zoomable photo element */
+.photobox {
+	height: 10rem;
+	overflow: hidden;
+	position: relative;
+
+	border: .1rem solid rgb(166, 166, 166);
+	border-radius: .2rem;
+}
+.photobox>button {
+	position: absolute;
+	z-index: 1;
+
+	right: 1rem; top: 3rem;
+	width: 10rem;
+
+	box-shadow: 0 0 1rem .5rem rgba(255,255,255,.4);
+
+}
+.photobox>label {
+	position: absolute;
+	z-index: 1;
+
+	left: 0; right: 0; bottom: 0;
+
+	padding: .2rem;
+	font-size: 1.4rem;
+	font-weight: 500;
+	text-align: center;
+	color: white;
+	text-shadow: 0 0 .2rem black,-.1rem -.1rem black, -.1rem .1rem black, .1rem .1rem black, .1rem -.1rem black;
+}
+.photobox>img {
+	position: absolute;
+	z-index: 0;
+	width: 100%;
+}
+
+/* Photobox zoom */
+.photobox.active {
+	-moz-box-sizing: border-box; box-sizing: border-box; 
+	position: absolute;
+	display: block;
+	top: 0; left: 0; right: 0; bottom: 0;
+	width: auto; height: auto;
+	width: 100vw; height: 100vh;
+	padding: 5%;
+	background: rgba(0,0,0,.9);
+	z-index: 10000;
+	border: none;
+}
+.photobox.active>img {
+	width: 90%; height: auto;
+	max-height: 90%;
+	border: .1rem solid #333;
+	box-shadow: 0 0 2rem rgba(255,255,255,.25)
+}
+.photobox.active>button {
+	display: none;
+}
+.photobox.active>label {
+	margin: 1.5rem 3rem;
+	padding: .2rem;
+	background: rgba(16,16,16,.8);
+	box-shadow: 0 0 3px 1px #111;
+}
+
+
+/* Status message */
+@keyframes popupStatusTransition {
+	0%   { transform: translateY(100%); opacity: 0; }
+	10%  { transform: translateY(0);	opacity: 1; }
+	90%  { transform: translateY(0);	opacity: 1; }
+	100% { transform: translateY(100%); opacity: 0; }
+}
+
+section[role="status"] {
+	z-index: 100000;
+	animation: popupStatusTransition 5s forwards;
+}
+
+.failure {
+	color: red !important;
+	text-shadow: 1px 1px 1px black;
+}
+
+
+/* Dialog */
+@keyframes fadeOutDialog {
+	0%   { transform: scaleX( 1) scaleY( 1); opacity: 1; }
+	100% { transform: scaleX(.1) scaleY(.1); opacity: 0; }
+}
+
+body>[role="dialog"] {
+	z-index: 1000 !important;
+	pointer-events: none;
+
+	animation: fadeOutDialog .6s forwards;
+}
+body.init:not(.in-dialog)>[role="dialog"] {
+	display: none;
+}
+
+@keyframes overlayDialog {
+	0%   { transform: scaleX(.1) scaleY(.1); opacity: 0; }
+	100% { transform: scaleX( 1) scaleY( 1); opacity: 1; }
+}
+body.in-dialog>[role="dialog"],
+body>[role="dialog"]:target {
+	pointer-events: all;
+
+	animation: overlayDialog .6s forwards;
+}
+
+/* Show-hide progress throbber */
+body>[role="dialog"]>section>progress {
+	display: none;
+}
+body>[role="dialog"].inprogress>section>progress {
+	display: block;
+	margin: 1rem auto;
+}
+
+/* Hide empty button bar */
+body>[role="dialog"]>menu:empty {
+	display: none;
+}
+
+body>[role="dialog"]>section>.post-checkin {
+	word-wrap: break-word;
+	margin: .25rem 1rem;
+	padding-top: 1rem;
+
+	border-top: 0.1rem solid rgb(104, 104, 104);
+}
+
+.post-checkin>label {
+	display: block;
+	font-weight: 400;
+}
+
+.post-checkin>ul.scores {
+	list-style: none;
+	margin-top: 1rem;
+}
+
+.post-checkin>ul.scores>li {
+	position: relative;
+
+	background: rgba(104, 104, 104, 0.5);
+	border-bottom: 0.2rem solid rgb(104, 104, 104);
+
+	font-size: 1.6rem;
+	line-height: 2rem;
+	margin-bottom: 1rem;
+	padding: .6rem 4rem .6rem .6rem;
+
+	box-shadow: 0 -2px 1px -1px rgba(255,255,255,.25);
+	-moz-hyphens: auto; hyphens: auto;
+}
+
+.post-checkin>ul.scores>li>i {
+	position: absolute;
+	bottom: .4rem; right: .4rem;
+	text-align: right;
+
+	width: 2.6rem;
+	height: 2.6rem;
+	font-size: 2.2rem;
+	line-height: 2.6rem;
+	padding-right: 3rem;
+
+	background-position: right center;
+	background-repeat: no-repeat;
+	vertical-align: middle;
 }

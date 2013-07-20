@@ -1,0 +1,143 @@
+.inline-icon,
+.block-icon,
+.icon {
+	background-image: url(../images/icons.png);
+	background-repeat: no-repeat;
+	background-size: auto;
+	font-size: 0;
+}
+.block-icon {
+	display: block;
+}
+.inline-icon {
+	display: inline-block;
+}
+
+.i-facebook {
+	width: 30px;
+	height: 30px;
+	background-position: 0 0;
+}
+
+.i-facebook-on {
+	width: 30px;
+	height: 30px;
+	background-position: -30px 0;
+}
+
+.i-person {
+	width: 30px;
+	height: 30px;
+	background-position: -60px 0;
+}
+
+.i-person-dark {
+	width: 30px;
+	height: 30px;
+	background-position: -90px 0;
+}
+
+.i-person-light {
+	width: 30px;
+	height: 30px;
+	background-position: -120px 0;
+}
+
+.i-photo {
+	width: 30px;
+	height: 30px;
+	background-position: -150px 0;
+}
+
+.i-photo-dark {
+	width: 30px;
+	height: 30px;
+	background-position: -180px 0;
+}
+
+.i-photo-light {
+	width: 30px;
+	height: 30px;
+	background-position: -210px 0;
+}
+
+.i-settings-dark:active,
+.i-settings-light:active,
+.i-settings {
+	width: 30px;
+	height: 30px;
+	background-position: -240px 0;
+}
+
+.i-settings-dark {
+	width: 30px;
+	height: 30px;
+	background-position: -270px 0;
+}
+
+
+.i-settings-light {
+	width: 30px;
+	height: 30px;
+	background-position: -300px 0;
+}
+
+.i-tick {
+	width: 30px;
+	height: 30px;
+	background-position: -330px 0;
+}
+
+.i-tick-dark {
+	width: 30px;
+	height: 30px;
+	background-position: -360px 0;
+}
+
+.i-tick-light {
+	width: 30px;
+	height: 30px;
+	background-position: -390px 0;
+}
+
+.i-twitter {
+	width: 30px;
+	height: 30px;
+	background-position: -420px 0;
+}
+
+.i-twitter-on {
+	width: 30px;
+	height: 30px;
+	background-position: -450px 0;
+}
+
+
+/* Geolocation animation */
+#GEOLOC[data-state]>*,
+.i-geo-searching,
+.i-geo-lock {
+	display: inline-block;
+	background-image: url(../images/geolock.png);
+	background-repeat: no-repeat;
+	background-size: auto;
+	font-size: 0;
+	width: 30px;
+	height: 30px;
+}
+
+#GEOLOC[data-state="searching"]>*,
+.i-geo-searching {
+	animation: geoSearchingGPSPosition 1s infinite;
+}
+
+#GEOLOC[data-state="lock"]>*,
+.i-geo-lock {
+	background-position: -30px 0;
+}
+
+/*animation: geoSearchingGPSPosition 2s infinite;*/
+@keyframes geoSearchingGPSPosition {
+    0% { transform: scaleX( 1); }
+  100% { transform: scaleX(-1); }
+}
