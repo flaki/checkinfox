@@ -5,7 +5,7 @@
 	,"developer": {
 			"name": "István Szmozsánszky (Flaki)",
 			"url": "https://twitter.com/slsoftworks"
-	},
+	}
 
 	,"installs_allowed_from": ["*"]
 	,"launch_path": "/index.html"
@@ -18,10 +18,10 @@
 		"128": "/images/icon-128.png"
 	}
 
-	"default_locale": "en",
-	"description": "Firefox OS client application for the foursquare network",
+	,"default_locale": "en"
+	,"description": "Firefox OS client application for the foursquare network"
 
-	"permissions": {
+	,"permissions": {
 		"geolocation": { "description" : "Marking out user location" }
 		,"storage": { "description" : "Cache data for offline use." }
 
