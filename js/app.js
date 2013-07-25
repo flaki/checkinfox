@@ -7,7 +7,7 @@ var connection = window.navigator.mozConnection,
 		online = "<strong>Connected:</strong> " + (connection.bandwidth),
 */
 
-define("app",["require","when/when","when/timeout"], function(require,when,timeout) {
+define("app",["require","when/when","when/timeout","when/delay"], function(require,when,timeout,delay) {
 "use strict";
 
 
@@ -59,6 +59,46 @@ Failure.prototype.fail = function (err) {
 	}
 };
 Failure.fail=Failure.prototype.fail;
+
+
+
+/* Shuffle elements - returns a random index between 0 and <elements>-1 */
+/* while avoiding sending the same index again, if it was sent previously */
+function Shuffle(elements) {
+	var last=null;
+
+	// Handle retrieving of last() generated element
+	this.last=function () { return last; };
+
+
+	// Handle next() w/ edge cases
+	// Ideal case - return a randomized next index
+	if (elements>2) {
+		this.next=function () {
+			var tries=10;
+			var next;
+
+			// 10 tries, try a random index
+			while (--tries>=0) if ( (next=Math.floor(Math.random()*elements))!==last ) return (last=next);
+
+			// fallback, return 0
+			return 0;
+		};
+
+	// Two elements - alternate between these two
+	} else if (elements==2) {
+		this.next=function() { return 0+(!last); };
+
+	// A single element - next always returns 0
+	} else if (elements==1) {
+		this.next=function() { return 0; };
+
+	// No/invalid elements - next always returns null
+	} else {
+		this.next=function() { return null; };
+	}
+}
+
 
 
 
@@ -278,6 +318,21 @@ var UI={
 		/* Install application˛*/
 		,installApp: function (e) {
 			WEBAPP.Install();
+		}
+
+		/* Toggle fullscreen map */
+		,toggleFullscreenMap: function (e) {	
+			// Turn full screen map on/off
+			document.body.classList.toggle("fullmap");
+
+			// Recalculate container dimensions
+			CLIENT.MAP.map.invalidateSize();
+		}
+
+		/* Open target of current element in a pop-up browser window view */
+		,openWindow: function (e) {	
+			var wnd=window.open(e.currentTarget.href);
+			return wnd;
 		}
 
 		/* List & Search venues on main screen */
@@ -597,9 +652,10 @@ var UI={
 
 var SCREENS={
 	S:{
-		'init': {l:0, scroll:0},
-		'main': {l:1, scroll:0},
-		'auth': {l:2, scroll:0}, 'venue': {l:2, scroll:0}, 'about': {l:2, scroll:0}, 'help': {l:2, scroll:0}
+		'init': {l:0},
+		'auth': {l:2},
+		'main': {l:1,auth:true},
+		'venue': {l:2, auth:true}, 'about': {l:2, auth:false}, 'help': {l:2, auth:false}
 	}
 
 	,initButtons: function () {
@@ -642,10 +698,19 @@ var SCREENS={
 	}
 
 	,main: function (src) {
-		window.location.hash="";
-		return SCREENS.activate('main');
+		// Authenticated - go (back) to main screen
+		if (CLIENT.authenticated) {
+			window.location.hash="";
+			return SCREENS.activate('main');
+
+		// Unauthenticated - show auth screen
+		} else {
+			window.location.hash="#auth";
+			return SCREENS.activate('auth');
+		}
 	}
-	,activate: function (toScreen) {
+
+	,change: function (toScreen) {
 		var fromScreen='main',fs,ts=SCREENS.S[toScreen];
 		if (typeof ts==="undefined") return false;
 
@@ -661,6 +726,16 @@ var SCREENS={
 		bodyclasses.add("in-"+toScreen);
 		window.location.hash=toScreen;
 
+		return true;
+	}
+	,activate: function (toScreen) {
+		var bodyclasses=document.body.classList;
+
+
+		// Change active screen
+		if (!SCREENS.change(toScreen)) return false;
+
+
 		/* Remove init/startup (if there is any) */
 		if (bodyclasses.contains("init")) {
 			bodyclasses.add("startup"); bodyclasses.remove("init");
@@ -670,6 +745,21 @@ var SCREENS={
 		}
 
 		return true;
+	}
+
+	// Start with page requested in url, if allowed, or load default fallback specified
+	,start: function(fallback) {
+		var auth=CLIENT.authenticated;
+		var hash=window.location.hash.substr(1);
+
+		// Hash is valid screen, that does not need authentication, or if it does, we are already authenticated
+		if (hash in SCREENS.S && (auth||!SCREENS.S[hash].auth) ) {
+			SCREENS.activate(hash);
+
+		// Fallback to default
+		} else {
+			SCREENS.activate(fallback);
+		}
 	}
 
 	,setup: function (screen,data) {
@@ -687,7 +777,12 @@ var SCREENS={
 
 			/* Update venue information by fetching verbose venue details via FSQ API */
 			FSAPI.currentVenue=V;
-			FSAPI.call(['venues',V.id]).then(function (res) {
+
+			/* TODO: put API calls to separate thread, use delay here to avoid API call interfering with layout animation */
+			delay(600,['venues',V.id]).then( FSAPI.call )
+
+			.then( function (res) {
+
 				var CV=FSAPI.currentVenue=res.response.venue
 					,venuePhotoDisplay=$("#venue ul.photos");
 
@@ -696,6 +791,13 @@ var SCREENS={
 					venue: CV
 					,data: { venueId: CV.id, ll: GEOLOC.coords() }
 				};
+
+				// Update external foursquare link
+				var ext=$("#venue a[data-action=\"openWindow\"]");
+				ext.href=CV.canonicalUrl.replace("foursquare.com/","foursquare.com/touch/");
+
+				// Enable check-in button
+				$("#venue button[data-action=\"publishCheckin\"]").disabled=false;
 
 				/* Update screen with venue photo */
 				if (CV.photos.groups.length>0 && CV.photos.groups[0].items.length>0) {
@@ -712,7 +814,8 @@ var SCREENS={
 
 				// Show a random photo
 				var vpd=venuePhotoDisplay.children;
-				var lastP=Math.floor(Math.random()*vpd.length);
+				var nextP=new Shuffle(vpd.length)
+					,lastP=nextP.next();
 				vpd[ lastP ].classList.add("show");
 
 				// Remove previous "slider"
@@ -733,7 +836,7 @@ var SCREENS={
 					}
 
 					// New random photo
-					while ((P=Math.floor(Math.random()*vpd.length))===lastP) ;
+					P=nextP.next();
 
 					// Show/hide selected
 					vpd[ lastP ].classList.remove("show");
@@ -757,7 +860,11 @@ var SCREENS={
 
 
 var CLIENT={
-	map:null
+	// Auth state
+	authenticated: false
+
+	// Leaflet map instance
+	,map: null
 
 
 	/* Store key needed for fetching the auth token - single use token only */
@@ -861,6 +968,7 @@ var CLIENT={
 				console.debug("Auth token: "+token);
 
 				/* Change window state to authenticated */
+				CLIENT.authenticated=true;
 				document.body.classList.add("authenticated");
 
 				deferred.resolve(token);
@@ -927,17 +1035,17 @@ var FSUtil={
 	,getTimestamp: function (obj) {
 		if (!(typeof obj==="object" && obj.createdAt)) return;
 
-		return obj.createdAt+60*(obj.timeZoneOffset-(new Date().getTimezoneOffset()));
+		return obj.createdAt;
 	}
 	,getDate: function(obj) {
 		if (!(typeof obj==="object" && obj.createdAt)) return;
 
-		return new Date((obj.createdAt+60*(obj.timeZoneOffset-(new Date().getTimezoneOffset())))*1000);
+		return new Date( obj.createdAt );
 	}
 	,getMinutes: function (obj) {
 		if (!(typeof obj==="object" && obj.createdAt)) return;
 
-		return Math.floor((obj.createdAt-Date.now()/1000)/60+obj.timeZoneOffset-(new Date().getTimezoneOffset()));
+		return Math.floor((obj.createdAt-Date.now()/1000)/60);
 	}
 
 }; /*FSUtil*/
@@ -1450,7 +1558,7 @@ CLIENT.MAP={
 
 			/* Disable map interactions */
 			//map.dragging.disable();
-			map.touchZoom.disable();
+			//map.touchZoom.disable();
 			map.doubleClickZoom.disable();
 			map.scrollWheelZoom.disable();
 			map.boxZoom.disable();
@@ -1465,7 +1573,7 @@ CLIENT.MAP={
 		CLIENT.MAP.updateViewport();
 	}
 
-	,updateViewport: function() {
+	,updateViewport: function(nofollow) {
 		var map=CLIENT.MAP.map;
 		var location=GEOLOC.pos || GEOLOC.approx;
 		if (!map || !location) return;
@@ -1476,7 +1584,7 @@ CLIENT.MAP={
 			,map_acc=(GEOLOC.pos ? true : false);
 
 		/* Zoom in on current geolocated position */
-		map.setView([map_lat, map_lon], (map_acc ? 14 : 9) );
+		if (!nofollow) map.setView([map_lat, map_lon], (map_acc ? 14 : 9) );
 
 		/* Estimated current location */
 		var marker = CLIENT.MAP.marker;
@@ -1489,8 +1597,10 @@ CLIENT.MAP={
 function init() {
 	var deferred=when.defer();
 	var initialize=function() {
+
 		/* Init buttons */
 		SCREENS.initButtons();
+
 
 		/* Initialize webapp install */
 		if (WEBAPP.installSupported()) {
@@ -1506,8 +1616,10 @@ function init() {
 			UI.displayNotification("WebApp installs not supported.");
 		}
 
+
 		/* Set up visibility listeners */
 		WEBAPP.Visibility();
+
 
 		/* Set up anchors in body texts */
 		var openPopup=function(e) { e.preventDefault(); window.open(e.originalTarget.href); return false; };
@@ -1515,11 +1627,13 @@ function init() {
 		var l=anchors.length;
 		while (--l>=0) anchors[l].addEventListener("click",openPopup);
 
+
 		// Show/hide some auxilliary fixed elements if screen size is too small
 		UI.showHideFixedElements();
 
 		// React to window size change (on rotation or display of on-screen keyboard)
 		window.addEventListener("resize",UI.showHideFixedElements);
+
 
 		/* Initialization finished */
 		setTimeout(deferred.resolve,100);
@@ -1641,7 +1755,10 @@ function updateLastCheckin(checkin) {
 }
 
 function onLocationUpdated(position) {
-	CLIENT.MAP.updateViewport();
+	// Update minimap, but not full-screen map
+	CLIENT.MAP.updateViewport(
+		document.body.classList.contains("fullmap") ? "nofollow" : null
+	);
 }
 
 function resetCheckinForm() {
@@ -1650,6 +1767,9 @@ function resetCheckinForm() {
 
 	// Remove image attachment
 	UI.handlers.removeAttachedPhoto();
+
+	// Disable checkin button
+	$("#venue button[data-action=\"publishCheckin\"]").disabled=true;
 
 	// Remove CLIENT checkin object
 	delete CLIENT.CHECKIN;
@@ -1681,7 +1801,7 @@ try {
 
 			// Initialization finished, user authenticated so show main screen
 			function () {
-				SCREENS.main();
+				SCREENS.start("main");
 			}
 
 			// Failed
@@ -1698,7 +1818,7 @@ try {
 				} else if (err) alert(err);
 
 				// Initialization finished, but currently authenticated so show the auth screen
-				SCREENS.activate("auth");
+				SCREENS.start("auth");
 
 				// reject Auth Flow
 				throw err;
@@ -1784,8 +1904,9 @@ catch (err) {
 	if (err instanceof Failure) err.fail(); else if (err) alert(err);
 }
 
-	//* ---DEBUG---
+	/* ---DEBUG---
 	window.APPUI=UI;
+	window.APPFS=FSAPI;
 	//*/
 
 return {};

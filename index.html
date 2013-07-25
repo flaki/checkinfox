@@ -87,19 +87,17 @@
 		<section class="authorized" id="main-venues" data-type="list">
 			<header>Where are you now?</header>
 			<ul id="venuesearch">
-				<li><form name="mainVenueSearch">
-					<p>
+				<li><form name="mainVenueSearch"><p>
 					<input type="text" name="searchQuery" placeholder="Filter &amp; Search venues" required="">
 					<button name="clear" type="reset">Clear</button>
-					</p>
-				</form></li>
+				</p></form></li>
 			</ul>
 			<ul id="venuelist"></ul>
 		</section>
 
 	</div>
 
-	<div id="map" class="tailmap">
+	<div id="map" class="tailmap" data-action="toggleFullscreenMap">
 		<div id="mapdiv"></div>
 	</div>
 </section>
@@ -121,9 +119,11 @@
 
 				<a class="recommend" role="button" href="#login">Log in to FourSquare</a>
 
+				<p>Also, be sure to check out the <a href="#help" data-action="help">Help</a> to read about setting up your GPS proper, current and upcoming Check-in Fox features and known issues.</p>
+
 				<h2>Contribute!</h2>
 				<p>Check-in Fox is still a work-in-progress beta, that means a lot of functions are unavailable as of yet, but fret not, as they are coming sooner, rather than later. Check the <a href="https://github.com/flaki/checkinfox">GitHub Repository</a>, help extending Check-in Fox yourself by filing bugs, ideas, or helping out in fixing bugs and implementing much-requested features!</p>
-				<p>In the coming weeks, as Check-in Fox matures, it would be translated into several languages. If you want to help out in the localization process, just <a href="https://twitter.com/slsoftworks">drop me a tweet</a> (all locales are welcome, though <em>spanish</em>, <em>polish</em>, <em>german</em> and <em>french</em> translations remain a priority).</p>
+				<p>In the coming weeks, as Check-in Fox matures, it would be translated into several languages. If you want to help out in the localization process, just <a href="https://twitter.com/slsoftworks">drop me a tweet</a> (all locales are welcome, though <em>spanish</em>, <em>polish</em>, <em>german</em> and <em>french</em> translations remain a priority). If you have found a bug, or want to request a new feature, <a href="https://github.com/flaki/checkinfox/issues">file a bug on GitHub</a>!</p>
 
 				<div class="install">
 					<h2>Install!</h2>
@@ -151,28 +151,29 @@
 			<li></li>
 		</ul>
 		<form name="publishCheckin">
-			<p>
-				<textarea name="shout" placeholder="Shoutout..."></textarea>
-					<input hidden name="shareFacebook" type="checkbox" />
-					<button data-input="shareFacebook" class="share icon" data-action="shareToggle">Share on Facebook</button>
+			<textarea name="shout" placeholder="Shoutout..."></textarea>
+				<input hidden name="shareFacebook" type="checkbox" />
+				<button data-input="shareFacebook" class="share icon" data-action="shareToggle">Share on Facebook</button>
 
-					<input hidden name="shareTwitter" type="checkbox" />
-					<button data-input="shareTwitter" class="share icon" data-action="shareToggle">Share on Twitter</button>
+				<input hidden name="shareTwitter" type="checkbox" />
+				<button data-input="shareTwitter" class="share icon" data-action="shareToggle">Share on Twitter</button>
 
-				<button class="recommend" data-action="publishCheckin">Check in here!</button>
+			<button class="recommend" data-action="publishCheckin">Check in here!</button>
 
-				<div role="toolbar"><ul>
-					<li><button data-action="attachPhoto"><span class="inline-icon i-photo-dark">Add photo to checkin</span> Attach photo</button>
-					<li><button data-action="checkInAFriend"><span class="inline-icon i-person-dark">Check in with friends</span> Add a friend</button>
-				</ul></div>
+			<div role="toolbar"><ul>
+				<li><button data-action="attachPhoto"><span class="inline-icon i-photo-dark">Add photo to checkin</span> Attach photo</button>
+				<li><button data-action="checkInAFriend"><span class="inline-icon i-person-dark">Check in with friends</span> Add a friend</button>
+			</ul></div>
 
-				<div id="attachPhotoPlaceholder" class="photobox" data-action="toggleActive" hidden>
-					<button data-action="removeAttachedPhoto">Remove</button>
-					<img src="" alt="" />
-					<label></label>
-				</div>
-			</p>
+			<div id="attachPhotoPlaceholder" class="photobox" data-action="toggleActive" hidden>
+				<button data-action="removeAttachedPhoto">Remove</button>
+				<img src="" alt="" />
+				<label></label>
+			</div>
+
+			<a href="#" data-action="openWindow">view on <img src="https://ss1.4sqi.net/img/chrome/logo-cae1f44bd6db94bf44d62c8d306ba199.png" alt="foursquare" /></a>
 		</form>
+
 	</div>
 </section>
 
@@ -198,17 +199,17 @@
 				<p>On the top of the main screen, some details about your last check-in are displayed: when and where were you last seen, according to foursquare.</p>
 
 				<h3>Venue list and search</h3>
-				<p>Under your last check-in is a search box and a list of venues around your supposed location. You could type any search terms into the search box, and hit enter if you are looking for a specific venue, or click the <em>Refresh</em> button on the right to have the list of venues updated. By clicking on a venue in the venue list you are taken to te <em>Check-in</em> screen.</p>
+				<p>Under your last check-in is a search box and a list of venues around your supposed location. You could type any search terms into the search box, and hit enter if you are looking for a specific venue, or click the <em>Refresh</em> button on the right to have the list of venues updated. You could use the <em>Refresh</em> button to load a list of venues when inside buildings, as the app will use your last-known position (before you entered the building, and lost GPS connection) to gather a list of nearby venues. By clicking on a venue in the venue list you are taken to te <em>Check-in</em> screen.</p>
 
 				<h3>Map</h3>
-				<p>The map displays your current location, according to your device's measurements. As acquiring a GPS fix on current devices may take a significant amount of time, we initially try to determine your approximate location (that is, country and city or area) to show this on the map - as this is derived from your IP address, this might be significantly further from your actual location. When the device has acquired your (more) precise location via GPS, the map is zoomed in at the presumed position where a blip represents your acquired location. You could zoom &amp; scroll the minimap to pan around.</p>
+				<p>The map displays your current location, according to your device's measurements. As acquiring a GPS fix on current devices may take a significant amount of time, we initially try to determine your approximate location (that is, country and city or area) to show this on the map - as this is derived from your IP address, this might be significantly further from your actual location. When the device has acquired your (more) precise location via GPS, the map is zoomed in at the presumed position where a blip represents your acquired location. You could zoom (<em>pinch-to-zoom</em>) &amp; pan around to navigate the minimap. Tapping the map brings up a full-screen map where you better see your location and surroundings.</p>
 				<p><em>Note: map functionality will be significantly increased in coming versions, with full-screen map, displaying of friends and venues around and more.</em></p>
 
 				<h2>Checking in</h2>
 				<p>By tapping on a venue in the venue list, you are taken to the check-in screen where you could publish a check-in with optional accompanying shout message and/or photo. If there are any public photos for the selected venue, they are displayed on the top of the screen in a rotating fashion.</p>
 
 				<h3>Checking in</h3>
-				<p>You could publish a check-in by tapping the highlighted <em>Check in here!</em> button in the center of the screen. You may optionally disclose a shout (short message) via the text box, or attach a photo via the <em>Attach photo</em> button. By clicking the <em>Attach photo</em> button, Firefox OS presents you with multitude of ways to choose the photo - from either the Gallery/Memory Card, or snap one right there with the Camera app. The attached photo is displayed on the bottom of the check-in screen (tap to view full image). If you changed your mind, you could remove the photo with the overlaid <em>Remove</em> button. If you want to share your check-in (and/or shout, photo) with your friends, you may choose to tick one of the share buttons: <em>Share on Facebook</em> and <em>Share on Twitter</em> (or both). If you changed your mind, and decided not to check in, you could tap the back button on the top left corner to return to the main screen.</p>
+				<p>You could publish a check-in by tapping the highlighted <em>Check in here!</em> button in the center of the screen. You may optionally disclose a shout (short message) via the text box, or attach a photo via the <em>Attach photo</em> button. By clicking the <em>Attach photo</em> button, Firefox OS presents you with multitude of ways to choose the photo - from either the Gallery/Memory Card, or snap one right there with the Camera app. The attached photo is displayed on the bottom of the check-in screen (tap to view full image). If you changed your mind, you could remove the photo with the overlaid <em>Remove</em> button. If you want to share your check-in (and/or shout, photo) with your friends, you may choose to tick one of the share buttons: <em>Share on Facebook</em> and <em>Share on Twitter</em> (or both). If you changed your mind, and decided not to check in, you could tap the back button on the top left corner to return to the main screen. Clicking on the <em>view on foursquare</em> link takes you to the detailed venue page on the foursquare mobile website.</p>
 				<p><em>Note: the Add a friend (tagging) button is not avaliable in current version of the application</em></p>
 
 				<h3>Post check-in screen</h3>
@@ -217,6 +218,10 @@
 				<h2>Geolocation in Firefox OS</h2>
 				<p>Geolocation in early versions of Firefox OS makes use of the device's <em>(A)GPS</em> sensor. This means, that acquiring a precise location might take significant amount of time, and would probably work only outdoors, with clear view of the sky. This makes it harder for one to use this for such highly location-dependent applications, as foursquare. The cell network &amp; wi-fi based geolocation on Firefox OS devices poses several privacy-related issues - and mozilla traditionally takes privacy very seriously - but is a very actively developed portion of the OS, and is coming to Firefox OS, rather sooner than later.</p>
 
+				<h3>Setting up geolocation properly</h3>
+				<p><strong>First, you need to set up <em>AGPS APN</em></strong>. You will find this in the device <em>Settings</em> &rArr; <em>AGPS-Settings</em> menu. You should set it to the same value your cell data APN is set to, in <em>Settings</em> &rArr; <em>Data settings</em> &rArr; <em>APN</em>. If you don't know this, you should ask your network/data provider.</p>
+				<p><strong>Next you need to go outside</strong>. Current geolocation on FirefoxOS is GPS-only, which  means it won't work indoors, you'll need a clear view on the sky to acquire a GPS fix. You should also turn off Wi-Fi and use cell data, as AGPS won't work on a WiFi connection.</p>
+				<p>If you did everything well - you are outside, with clear view on the sky and have nailed the setup - your phone should get a GPS lock in under 1-2 minutes - and a precise position. Without AGPS, you might still get a lock, but it could easily take 10+ minutes until your phone acquires GPS lock without network assistance.</p>
 			<article>
 		</section>
 </section>
@@ -234,7 +239,7 @@
 				<header>
 					<img src="images/mascot.png" alt="Logo" />
 					<h1>Check-in Fox</h1>
-					<label>version <span class="app-version">0.4</span> (<time>2013-07-20</time>)</label>
+					<label>version <span class="app-version">0.45</span> (<time>2013-07-25</time>)</label>
 				</header>
 
 				<h2>About Check-in Fox</h2>
@@ -260,6 +265,15 @@
 
 				<h2>Changelog</h2>
 				<ul>
+					<li><strong>[2013-07-25] v0.45</strong>
+					First version to be published on the Firefox Marketplace.
+					<br />&middot; Fixed minimap issues, implemented fullscreen map
+					<br />&middot; Fixed last-checkin-time bug
+					<br />&middot; Fixed freeze-bug in single-photo venues
+					<br />&middot; Help and About are now viewable without authentication
+					<br />&middot; Expanded help with geolocation setup how-to
+					<br />&middot; Minor fixes and improvements
+
 					<li><strong>[2013-07-20] v0.4</strong>
 					First public release, support for basic features: authentication, geolocation, listing and searching nearby venues, checking in with shout, sharing and photo upload options.
 				</ul>

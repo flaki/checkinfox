@@ -163,7 +163,8 @@ article p {
 	margin: .8rem .2rem;
 }
 article h3+p,
-article h3+p+p {
+article h3+p+p,
+article h3+p+p+p {
 	margin: .5rem 1rem 0;
 }
 
@@ -248,16 +249,16 @@ article>header>h1 {
 }
 
 /* Geolocation Map */
-:not(.showmap) > .main.screen>#map.tailmap {
+:not(.showmap) > .main.screen>.tailmap {
 	display: none;
 }
-.showmap > .main.screen>#map.tailmap {
+.showmap > .main.screen>.tailmap {
 	width: 100%;
 	height: 10rem;
 
 	z-index: 10;
 
-	background: url("../images/headers/ui/header.png") repeat-x scroll 0px 0px / auto 100% transparent;
+	background: url("../style/headers/images/ui/header.png") repeat-x scroll 0px 0px / auto 100% transparent;
 	padding-top: .5rem;
 }
 
@@ -268,6 +269,21 @@ article>header>h1 {
 	/*display: block; position: relative;	z-index: 100;*/
 }
 
+/* Full-screen map */
+body.fullmap #map {
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding-top: 1rem;
+	animation: none;
+}
+body.fullmap #map>div {
+	border-top: 0.1rem solid #950;
+}
 
 /* Venue search on main screen */
 #venuesearch form>p {
@@ -287,6 +303,26 @@ article>header>h1 {
 	opacity: .75;
 }
 
+
+
+/* Venue screen */
+#venue.screen > .main>form> a[data-action="openWindow"] {
+	float: right;
+	margin: 1rem .5rem .5rem;
+	
+	color: black;
+	text-decoration: none;
+	font-style: italic;
+	font-weight: 300;
+	line-height: 26px;
+}
+#venue.screen > .main>form> .photobox[hidden] + a[data-action="openWindow"] {
+	margin: 6rem .5rem .5rem;
+}
+
+#venue.screen > .main>form> a[data-action="openWindow"]>img {
+	vertical-align: bottom;
+}
 
 /* Venue screen Photo display */
 #venue.screen > .main>.photos:empty {
@@ -321,7 +357,7 @@ article>header>h1 {
 	padding: 1rem;
 }
 
-#venue.screen > .main>form>p>textarea {
+#venue.screen > .main>form>textarea {
 	width: 85%;
 	width: calc(100% - 5.5rem);
 	height: 9rem;
@@ -344,7 +380,7 @@ article>header>h1 {
 	vertical-align: top;
 }
 
-#venue.screen > .main>form>p>.share {
+#venue.screen > .main>form>.share {
 	-moz-appearance: none;
 
 	float: right;
@@ -354,19 +390,22 @@ article>header>h1 {
 	height: 4rem;   height: 32px;
 }
 
-#venue.screen > .main>form>p>[data-input="shareFacebook"] {
+#venue.screen > .main>form>[data-input="shareFacebook"] {
 	opacity: .5;
 	background-position: 0 0; /* i-facebook */ }
-#venue.screen > .main>form>p>input[name="shareFacebook"]:checked+[data-input="shareFacebook"] {
+#venue.screen > .main>form>input[name="shareFacebook"]:checked+[data-input="shareFacebook"] {
 	opacity: 1;
 	background-position: -30px 0; /* i-facebook-on */ }
 
-#venue.screen > .main>form>p>[data-input="shareTwitter"] {
+#venue.screen > .main>form>[data-input="shareTwitter"] {
 	opacity: .5;
 	background-position: -420px 0; /* i-twitter */ }
-#venue.screen > .main>form>p>input[name="shareTwitter"]:checked+[data-input="shareTwitter"] {
+#venue.screen > .main>form>input[name="shareTwitter"]:checked+[data-input="shareTwitter"] {
 	opacity: 1;
 	background-position: -450px 0; /* i-twitter-on */ }
+
+
+
 
 /* Photo box - zoomable photo element */
 .photobox {
