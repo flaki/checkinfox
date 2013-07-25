@@ -1277,6 +1277,17 @@ var WEBAPP={
 		}
 	} /*appOffline*/
 
+
+	/* Open target of current element in the browser */
+	,launchBrowser: function (e) {
+		/* External links only */
+		if (e.currentTarget.attributes.href.value.substr(0,4)!=="http") return true;
+
+		e.preventDefault();
+		window.open(e.currentTarget.href,"_blank");
+		return false;
+	}
+
 };/* WEBAPP */
 
 
@@ -1467,7 +1478,7 @@ var GEOLOC={
 		posobj.enableHighAccuracy=true;
 		posobj.maximumAge=15000;
 		posobj.timeout=locateTimeout;
-
+		
 		/* Quick-response settings */
 		if (settings && settings.quick) {
 			posobj.enableHighAccuracy=false;
@@ -1552,6 +1563,14 @@ CLIENT.MAP={
 
 			/* Add map tile layer */
 			L.tileLayer(map_url, {attribution: null, styleId: 997}).addTo(map);
+
+			/* Attribution and other links should point to window.open */
+			var mapLinks=document.querySelectorAll("#map a[href]")
+				,l=mapLinks.length;
+
+				while ( --l >= 0) mapLinks[l].addEventListener("click",function (e) {
+					return WEBAPP.launchBrowser(e);
+				});
 
 			/* Add a marker */
 			var marker = L.marker([map_lat, map_lon]);
